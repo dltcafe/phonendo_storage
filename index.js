@@ -1,40 +1,31 @@
-import { io } from "socket.io-client";
+import "dotenv/config";
+import { start, stop } from "./libp2p-node.js";
+import { write, read } from "./db.js";
 
-const socket = io("http://localhost:3000");
+import { toString } from "uint8arrays/to-string";
+import { fromString } from "uint8arrays/from-string";
 
-console.log("Phonendo Storage Initialization");
+start({
+  "/discover/1.0.0": () => fromString(process.env.SERVICE_NAME),
+  "/write/1.0.0": async (key) => {
+    key = toString(key);
+    let tokens = key.split("##");
+    await write(tokens[0], tokens[1]);
+    return fromString("ok");
+  },
+  "/read/1.0.0": async (key) => {
+    key = toString(key);
+    let result = await read(key);
+    return fromString(result);
+  },
+})
+  .then()
+  .catch(console.error);
 
-socket.on("connect", () => {
-    console.log(socket.id);
+const exit = async () => {
+  await stop();
+  process.exit(0);
+};
 
-    //fake
-    socket.emit("reader_new_data", 5);
-});
-
-socket.on("disconnect", () => {
-    console.log("Disconnected ", socket.id);
-});
-
-// Receives raw data from Phonendo Manager - Model and save data
-socket.on("storage_save_data_raw", (data) => {
-    console.log("Raw data received from Manager");
-    console.log(data);
-    //model it
-    // storage it
-    let json = {
-        data: 5
-    };
-    socket.emit("storage_return_data_raw", json);
-});
-
-// Receives processed data from Phonendo Manager to be saved
-socket.on("storage_save_data_processed", (data) => {
-    console.log("Processed data received from Manager");
-    console.log(data);
-    //model it
-    // storage it
-    let json = {
-        data: 5
-    };
-    socket.emit("storage_return_data_processed", json);
-});
+process.on("SIGTERM", exit);
+process.on("SIGINT", exit);
