@@ -10,13 +10,15 @@ start({
   "/write/1.0.0": async (key) => {
     key = toString(key);
     let tokens = key.split("##");
-    await write(tokens[0], tokens[1]);
+    let value = JSON.parse(tokens[1]);
+    value.status = "captured";
+    await write(tokens[0], value);
     return fromString("ok");
   },
   "/read/1.0.0": async (key) => {
     key = toString(key);
     let result = await read(key);
-    return fromString(result);
+    return fromString(JSON.stringify(result));
   },
 })
   .then()
