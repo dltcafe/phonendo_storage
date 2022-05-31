@@ -20,4 +20,17 @@ const read = async (key) => {
   return result;
 };
 
-export { write, read };
+const update = async (key, value) => {
+  await del(key);
+  await write(key, value);
+};
+
+const del = async (key) => {
+  try {
+    result = await db.del(key);
+  } catch (error) {
+    console.warn(`DB ${key} not found`);
+  }
+};
+
+export { write, read, update, del };
