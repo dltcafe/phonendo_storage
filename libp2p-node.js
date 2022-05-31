@@ -25,10 +25,9 @@ const node = await createLibp2p({
 
 const start = async (protocols) => {
   await node.start();
-  console.log(`${process.env.SERVICE_NAME} has started`);
 
   node.getMultiaddrs().forEach((addr) => {
-    console.log(`Listening on address: ${addr.toString()}`);
+    console.log("Listening on", addr.toString());
   });
 
   node.handle(Object.keys(protocols), ({ protocol, stream }) => {
