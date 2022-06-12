@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { start, stop } from "./libp2p-node.js";
-import { write, update, del } from "./db.js";
+import { write, update, del, getAllCapturedItems } from "./db.js";
 
 import { toString } from "uint8arrays/to-string";
 import { fromString } from "uint8arrays/from-string";
@@ -30,6 +30,12 @@ start({
     key = toString(key);
     await del(key);
     return fromString(`${key} deleted`);
+  },
+
+  "/reconnect/1.0.0": async () => {
+    let data = await getAllCapturedItems();
+
+    return fromString(JSON.stringify(data));
   },
 })
   .then()
