@@ -26,32 +26,29 @@ const update = async (key, value) => {
 };
 
 const del = async (key) => {
-  let result = "";
   try {
-    result = await db.del(key);
+    await db.del(key);
   } catch (error) {f
     console.warn(`DB ${key} not found`);
   }
 };
 
-const getAllCapturedItems = async () => {
-
-    let capturedItems = [];
+const getAll = async (status) => {
+    let items = [];
 
     try {
         for await (const data of db.iterator()) {
-            const [key, value] = data;
-            if (value.status === "captured") {
-                capturedItems.push(data);
+            const [_, value] = data;
+            if (value.status === status) {
+                items.push(data);
             }
         }
-
-        return capturedItems;
     } catch (err) {
-        console.error(err)
-
-        return capturedItems;
+        console.error(err);
+        items = [];
     }
+
+    return items;
 };
 
-export { write, read, update, del, getAllCapturedItems };
+export { write, read, update, del, getAll };
