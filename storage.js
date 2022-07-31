@@ -25,10 +25,15 @@ start({
   "/verify/1.0.0": async (key) => {
     key = toString(key);
     let tokens = key.split("##");
-    let value = JSON.parse(tokens[1]);
-    value.status = "verified";
-    await update(tokens[0], value);
-    return fromString(JSON.stringify(value));
+    if (tokens[2] == "true") {
+      let value = JSON.parse(tokens[1]);
+      value.status = "verified";
+      await update(tokens[0], value);
+      return fromString(JSON.stringify(value));
+    } else {
+      await del(key);
+      return fromString(`${key} deleted`);
+    }
   },
 
   "/publish/1.0.0": async (key) => {
